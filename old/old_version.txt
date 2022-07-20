@@ -1,0 +1,206 @@
+#include <Arduino.h>
+#include <Keypad.h>
+
+
+// Programmteile einfuegen
+#include <keypad4x3.h>
+#include <fragen.h>
+
+#include <TFT_eSPI.h> // Hardware-specific library
+#include <SPI.h>
+
+/////////////////////////////////////////////////////////////////////////// TFT Setup
+
+#define TFT_MOSI  21
+#define TFT_SCK 18
+#define TFT_CS 33
+#define TFT_DC  36
+#define TFT_RESET 25
+
+
+TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
+// Maximum number of generations until the screen is refreshed
+#define MAX_GEN_COUNT 500
+
+// The ESP8266 has plenty of memory so we can create a large array
+// 2 x 2 pixel cells, array size = 5120 bytes per array, runs fast
+#define GRIDX 80
+#define GRIDY 64
+#define CELLXY 2
+
+#define GEN_DELAY 10 // Set a delay between each generation to slow things down
+
+// TFT_CS   PIN_D8 Chip select control pin D8
+// TFT_DC   PIN_D3 Data Command control pin
+// TFT_RST  PIN_D4 Reset pin (could connect to NodeMCU RST, see next line)
+
+//Current grid and newgrid arrays are needed
+uint8_t grid[GRIDX][GRIDY];
+
+//The new grid for the next generation
+uint8_t newgrid[GRIDX][GRIDY];
+
+//Number of generations
+uint16_t genCount = 0;
+
+
+/////////////////////////////////////////////////////////////////////////// variablen für Fragen
+int punkte      = 0;
+int frage       = 1;
+int start       = 0;
+
+/////////////////////////////////////////////////////////////////////////// Intervall der Steuerung
+unsigned long previousMillis_fragen = 0;
+unsigned long interval_fragen = 2000; 
+
+/////////////////////////////////////////////////////////////////////////// Funktionsprototypen
+//void callback                (char*, byte*, unsigned int);
+void loop                      ();
+void setup                     ();
+void spiel_beginn              ();
+void spiel_frage               (int nummer_der_frage);
+
+
+///////////////////////////////////////////////////////////////////////////  SETUP
+void spiel_beginn() {
+  char key = keypad.getKey();
+
+   // Ablaufsteuerung zur wiedergabe der Einführung
+
+    Serial.println("Spiel beginnt Starten # drücken");
+
+  if (key == '#') {
+    //Serial.println(key);
+    //Serial.println("Variable geschrieben");
+    start   = 1;
+  }
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////  SETUP
+void spiel_frage(int nummer_der_frage) {
+  char key = keypad.getKey();
+
+
+  // Frage ausgeben
+  Serial.print("Frage : ");
+  Serial.println(frage_array[nummer_der_frage][0]);
+  Serial.println("Antwort ");
+  Serial.println(frage_array[nummer_der_frage][1]);
+  Serial.println(frage_array[nummer_der_frage][2]);
+  Serial.println(frage_array[nummer_der_frage][3]);
+
+
+	if( key == '1' || key == '2' || key == '3' ) //while the button is pressed
+	{
+		// Antwort prüfen und Punkte bei richtiger Antwort addieren
+    if(key == frage_antwort[nummer_der_frage]) {
+      //Serial.println("*****************************GLEICH : ");
+      // Punkte erhöhen und nächste Frage schreiben
+      
+          ++punkte;
+          ++frage;
+          return;
+
+    } else {
+
+          ++frage;
+          return;
+    }
+    
+	} else
+  {   }
+
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////  SETUP
+void setup() {
+
+  Serial.begin(115200);
+  Serial.println("Setup starten ...");
+
+// Display
+  //Set up the display
+  tft.init();
+  tft.setRotation(3);
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE);
+  tft.setCursor(0, 0);
+
+}
+
+/////////////////////////////////////////////////////////////////////////// LOOP
+void loop() {
+
+
+  //Display a simple splash screen
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_WHITE);
+  tft.setCursor(40, 5);
+  tft.println(F("Arduino"));
+  tft.setCursor(35, 25);
+  tft.println(F("Cellular"));
+  tft.setCursor(35, 45);
+  tft.println(F("Automata"));
+
+  delay(1000);
+
+  tft.fillScreen(TFT_BLACK);
+
+    delay(1000);
+
+
+// ********************************************** Willkommen
+if (punkte == 0 && frage == 1 && start == 0){
+  // Spiel beginnt - Begruessung laden
+  spiel_beginn();
+}
+
+
+// ********************************************** Start Frage 1
+if (start == 1 && frage <= 10){
+  
+  spiel_frage(frage);
+
+  }
+
+  Serial.println("Anzahl Fragen");
+  Serial.println(frage);
+
+// ********************************************** Auswertung
+if (frage == 10){
+  
+  Serial.println("Auswertung ...");
+
+  delay(1000);
+
+  }  
+
+
+
+
+/*
+///////////////////////////////////////////////////////////////////////// BTC Kurs abfragen
+if (millis() - previousMillis_fragen > interval_fragen) {
+    previousMillis_fragen = millis();   // aktuelle Zeit abspeichern
+
+  // Tacktung Fragen
+
+   }
+
+*/
+/*  
+  char key = keypad.getKey();
+
+  if (key) {
+    Serial.println(key);
+  }
+*/
+delay(200);
+
+}

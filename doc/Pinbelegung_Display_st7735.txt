@@ -1,0 +1,40 @@
+PIN DISPLAY                 Farbe         ESP32
+1   GND                     grün          GND
+2   VCC                     blau          Vcc
+3   SCK SPI Clock           violett       18
+4   SDA SPI Data MOSI       grau          23
+5   RES Reset               weiss         4
+6   RS (RS/DC SPI signal)   schwarz       2
+7   CS                      braun         15
+8   LED DISPLAY             rot           Vcc
+
+
+
+[code]
+TFT_eSPI ver = 2.4.70
+Processor    = ESP32
+Frequency    = 240MHz
+Transactions = Yes
+Interface    = SPI
+Display driver = 7735
+Display width  = 80
+Display height = 160
+
+R0 x offset = 26
+R0 y offset = 1
+MOSI    = GPIO 23
+SCK     = GPIO 18
+TFT_CS   = GPIO 15
+TFT_DC   = GPIO 2
+TFT_RST  = GPIO 4
+
+Font GLCD   loaded
+Font 2      loaded
+Font 4      loaded
+Font 6      loaded
+Font 7      loaded
+Font 8      loaded
+Smooth font enabled
+
+Display SPI frequency = 20.00
+[/code]
